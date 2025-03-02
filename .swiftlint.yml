@@ -1,3 +1,20 @@
-opt_in_rules:
+# SwiftLint 기본 설정
+disabled_rules: # 비활성화할 규칙
   - trailing_whitespace
+  - force_cast
   - force_unwrapping
+
+opt_in_rules: # 선택적 규칙 활성화
+  - empty_count
+  - explicit_init
+  - sorted_imports
+  - vertical_whitespace
+  - redundant_optional_initialization
+
+included: # SwiftLint가 검사할 파일 경로
+  - ToDoListApp
+
+excluded: # 검사에서 제외할 경로
+  - Pods
+  - Carthage
+  - Generated

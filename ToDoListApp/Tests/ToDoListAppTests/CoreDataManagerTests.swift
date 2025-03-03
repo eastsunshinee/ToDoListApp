@@ -16,19 +16,19 @@ final class CoreDataManagerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        coreDataManager = CoreDataManager.shared
+        coreDataManager = CoreDataManager(inMemory: true)// 테스트용 인스턴스 사용
         context = coreDataManager.context
-        deleteAllData() // ✅ 기존 데이터 삭제 후 테스트 실행
+        deleteAllData()// 기존 데이터 삭제 후 테스트 실행
     }
 
     override func tearDown() {
-        deleteAllData() // ✅ 테스트 종료 후 데이터 삭제
+        deleteAllData()// 테스트 종료 후 데이터 삭제
         coreDataManager = nil
         context = nil
         super.tearDown()
     }
 
-    /// ✅ CoreData 모든 데이터 삭제 (테스트 격리 보장)
+    /// 모든 데이터 삭제
     private func deleteAllData() {
         let fetchRequest: NSFetchRequest<ToDoEntity> = ToDoEntity.fetchRequest()
         do {
@@ -36,18 +36,18 @@ final class CoreDataManagerTests: XCTestCase {
             for object in results {
                 context.delete(object)
             }
-            coreDataManager.saveContext() // 변경 사항 저장
+            coreDataManager.saveContext()// 변경 사항 저장
         } catch {
-            print("❌ CoreData 초기화 실패: \(error.localizedDescription)")
+            print("CoreData 초기화 실패: \(error.localizedDescription)")
         }
     }
 
-    /// ✅ 새로운 ToDo 저장 테스트
+    /// 저장 테스트
     func testSaveToDo() {
         let newToDo = ToDoEntity(context: context)
         newToDo.id = UUID()
-        newToDo.title = "Test Task"
-        newToDo.details = "This is a test task."
+        newToDo.title = "테스트 제목 01"
+        newToDo.details = "테스트 내용 01"
         newToDo.isCompleted = false
         newToDo.createdAt = Date()
         newToDo.dueDate = nil
@@ -58,25 +58,25 @@ final class CoreDataManagerTests: XCTestCase {
         let fetchedToDos = try? context.fetch(fetchRequest)
 
         XCTAssertNotNil(fetchedToDos)
-        XCTAssertEqual(fetchedToDos?.count, 1) // ✅ 기존 데이터 삭제 후 1개만 있어야 함
-        XCTAssertEqual(fetchedToDos?.first?.title, "Test Task")
+        XCTAssertEqual(fetchedToDos?.count, 1) // 기존 데이터 삭제 후 1개만 있어야 함
+        XCTAssertEqual(fetchedToDos?.first?.title, "테스트 제목 01")
     }
 
-    /// ✅ 저장된 ToDo 조회 테스트
+    /// 조회 테스트
     func testFetchToDos() {
         // Given
         let newToDo1 = ToDoEntity(context: context)
         newToDo1.id = UUID()
-        newToDo1.title = "Task 1"
-        newToDo1.details = "First test task."
+        newToDo1.title = "테스트 제목 01"
+        newToDo1.details = "테스트 내용 01"
         newToDo1.isCompleted = false
         newToDo1.createdAt = Date()
         newToDo1.dueDate = nil
 
         let newToDo2 = ToDoEntity(context: context)
         newToDo2.id = UUID()
-        newToDo2.title = "Task 2"
-        newToDo2.details = "Second test task."
+        newToDo2.title = "테스트 제목 02"
+        newToDo2.details = "테스트 내용 02"
         newToDo2.isCompleted = true
         newToDo2.createdAt = Date()
         newToDo2.dueDate = nil
@@ -85,23 +85,23 @@ final class CoreDataManagerTests: XCTestCase {
 
         // When
         let fetchRequest: NSFetchRequest<ToDoEntity> = ToDoEntity.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)] // ✅ 정렬 추가
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]// 정렬 추가
         let fetchedToDos = try? context.fetch(fetchRequest)
 
         // Then
         XCTAssertNotNil(fetchedToDos)
         XCTAssertEqual(fetchedToDos?.count, 2)
-        XCTAssertEqual(fetchedToDos?.first?.title, "Task 1") // ✅ 정렬 순서 확인
-        XCTAssertEqual(fetchedToDos?.last?.title, "Task 2")
+        XCTAssertEqual(fetchedToDos?.first?.title, "테스트 제목 01")// 정렬 순서 확인
+        XCTAssertEqual(fetchedToDos?.last?.title, "테스트 제목 02")
     }
 
-    /// ✅ 저장된 ToDo 삭제 테스트
+    /// 삭제 테스트
     func testDeleteToDo() {
         // Given
         let newToDo = ToDoEntity(context: context)
         newToDo.id = UUID()
-        newToDo.title = "Task to delete"
-        newToDo.details = "Task will be deleted."
+        newToDo.title = "테스트 제목 01"
+        newToDo.details = "테스트 네영 01"
         newToDo.isCompleted = false
         newToDo.createdAt = Date()
         newToDo.dueDate = nil
@@ -110,7 +110,7 @@ final class CoreDataManagerTests: XCTestCase {
 
         let fetchRequest: NSFetchRequest<ToDoEntity> = ToDoEntity.fetchRequest()
         let fetchedToDosBefore = try? context.fetch(fetchRequest)
-        XCTAssertEqual(fetchedToDosBefore?.count, 1) // 저장된 데이터 확인
+        XCTAssertEqual(fetchedToDosBefore?.count, 1)// 저장된 데이터 확인
 
         // When
         if let toDoToDelete = fetchedToDosBefore?.first {

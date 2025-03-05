@@ -12,7 +12,7 @@ struct ToDoListAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ToDoListView(viewModel: ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: CoreDataToDoRepository())))
         }
     }
 }

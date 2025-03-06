@@ -10,49 +10,76 @@ import SwiftUI
 struct ToDoListView: View {
     @StateObject private var viewModel: ToDoListViewModel
 
-    /// 생성자
-    /// - Parameter viewModel: ViewModel 주입
-    init(viewModel: ToDoListViewModel) {
+    init(viewModel: ToDoListViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: CoreDataToDoRepository()))) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(viewModel.toDos) { toDo in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(toDo.title)
-                                .font(.headline)
-                            if let details = toDo.details {
-                                Text(details)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        Spacer()
+            VStack {
+                if viewModel.toDos.isEmpty {
+                    VStack {
+                        Text("할 일이 없습니다.")
+                            .foregroundColor(.gray)
+                            .font(.headline)
+                            .padding()
+
                         Button(action: {
-                            viewModel.deleteToDo(id: toDo.id)
+                            viewModel.showAddToDo = true
                         }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                            Text("새로운 할 일 추가")
+                                .font(.title3)
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.blue)
+                                .cornerRadius(8)
+                        }
+                        .padding()
+                    }
+                } else {
+                    List {
+                        ForEach(viewModel.toDos, id: \.id) { todo in
+                            NavigationLink(destination: ToDoDetailView(todo: todo)) {
+                                HStack {
+                                    Text(todo.title)
+                                    Spacer()
+                                    if todo.isCompleted {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                    }
+                                }
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        viewModel.deleteToDo(id: todo.id)
+                                    }
+                                } label: {
+                                    Label("삭제", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                 }
             }
-            .navigationTitle("To-Do List")
+            .navigationTitle("할 일 목록")
             .toolbar {
-                NavigationLink(destination: AddToDoView(viewModel: viewModel)) {
-                    Image(systemName: "plus")
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        viewModel.showAddToDo = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
                 }
             }
-            .onAppear {
-                viewModel.fetchToDos()
+            .sheet(isPresented: $viewModel.showAddToDo) {
+                AddToDoView(viewModel: viewModel)
             }
         }
     }
 }
 
 #Preview {
-    ToDoListView(viewModel: ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: CoreDataToDoRepository())))
+    ToDoListView()
 }

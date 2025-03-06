@@ -11,6 +11,8 @@ import Combine
 /// 주요 기능: 할 일 목록 가져오기, 할 일 추가, 할 일 삭제
 final class ToDoListViewModel: ObservableObject {
     @Published var toDos: [ToDoItem] = []// 바인딩
+    @Published var showAddToDo: Bool = false // ✅ 추가 화면을 띄우기 위한 상태 변수
+
     private let useCase: ToDoUseCase
     private var cancellables: Set<AnyCancellable> = []
     
@@ -50,6 +52,7 @@ final class ToDoListViewModel: ObservableObject {
                 }
             }, receiveValue: { [weak self] in
                 self?.fetchToDos()
+                self?.showAddToDo = false
             })
             .store(in: &cancellables)
     }

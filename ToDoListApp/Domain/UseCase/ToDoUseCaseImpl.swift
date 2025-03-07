@@ -9,6 +9,12 @@ import Foundation
 import Combine
 
 final class ToDoUseCaseImpl: ToDoUseCase {
+    private let repository: ToDoRepository
+
+    init(repository: ToDoRepository) {
+        self.repository = repository
+    }
+
     func fetchToDos() -> AnyPublisher<[ToDoItem], any Error> {
         repository.fetchToDos()
     }
@@ -21,11 +27,7 @@ final class ToDoUseCaseImpl: ToDoUseCase {
         repository.deleteToDo(id)
     }
     
-    private let repository: ToDoRepository
 
-    init(repository: ToDoRepository) {
-        self.repository = repository
-    }
 
 
 }

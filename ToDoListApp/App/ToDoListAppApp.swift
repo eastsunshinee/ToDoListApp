@@ -9,10 +9,13 @@ import SwiftUI
 
 @main
 struct ToDoListAppApp: App {
+    @StateObject private var viewModel = ToDoListViewModel(
+        useCase: ToDoUseCaseImpl(repository: CoreDataToDoRepository())
+    )
 
     var body: some Scene {
         WindowGroup {
-            ToDoListView(viewModel: ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: CoreDataToDoRepository())))
+            ToDoListView(viewModel: viewModel)
         }
     }
 }

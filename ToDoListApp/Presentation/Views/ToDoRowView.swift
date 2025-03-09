@@ -10,21 +10,24 @@ import SwiftUI
 struct ToDoRowView: View {
     let todo: ToDoItem
     let toggleCompletion: (UUID) -> Void
+    let deleteAction: (UUID) -> Void
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(todo.title)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primaryColor)
+                    .font(.headline)
+                    .foregroundColor(.myTextPrimary)
+                    .padding(.bottom, 2)
 
                 if let details = todo.details, !details.isEmpty {
                     Text(details)
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .font(.subheadline)
+                        .foregroundColor(.myTextSecondary)
                         .lineLimit(1)
                 }
             }
+
             Spacer()
 
             Button(action: {
@@ -34,26 +37,19 @@ struct ToDoRowView: View {
             }) {
                 Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
                     .resizable()
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(todo.isCompleted ? .primaryColor : .gray)
-                    .rotationEffect(.degrees(todo.isCompleted ? 360 : 0))
-                    .scaleEffect(todo.isCompleted ? 1.2 : 1.0)
-                    .animation(.spring(), value: todo.isCompleted)
+                    .frame(width: 28, height: 28)
+                    .foregroundColor(todo.isCompleted ? .myDestructive : .gray)
             }
             .contentShape(Rectangle())
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.backgroundColor)
-                .shadow(radius: 3)
-        )
     }
 }
 
+
 #Preview {
-    ToDoRowView(todo: ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil),
-                toggleCompletion: { _ in })
-        .previewLayout(.sizeThatFits)
-        .padding()
+    ToDoRowView(
+        todo: ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil),
+        toggleCompletion: { _ in },
+        deleteAction: { _ in } // ✅ 삭제 기능 미리보기 적용
+    )
 }

@@ -8,34 +8,40 @@
 import SwiftUI
 
 struct EmptyStateView: View {
-    let message: String // ✅ 외부에서 메시지 설정 가능
+    let preferredSize: CGFloat = 20
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "list.bullet.rectangle")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 100, height: 100)
-                .foregroundColor(.primaryColor.opacity(0.7)) // ✅ 브랜드 컬러 반영
+        ZStack {
+//            Color.myBackground.ignoresSafeArea()
 
-            Text(message)
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(.textColor.opacity(0.8)) // ✅ 가독성 개선
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 20)
+            VStack(spacing: 10) {
+                Image(systemName: "tray.fill")
+                    .resizable()
+                    .frame(width: 60, height: 60)
+                    .foregroundColor(.myDestructive)
 
-            Text("할 일을 추가해보세요!")
-                .font(.subheadline)
-                .foregroundColor(.textColor.opacity(0.6))
+                Spacer().frame(height: 4)
+
+                Text("추가한 할 일이 없습니다.")
+                    .font(.system(size: preferredSize, weight: .bold))
+                    .foregroundColor(Color.myTextPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("새로운 할 일을 추가해보세요!")
+                    .font(.system(size: preferredSize * 0.85))
+                    .foregroundColor(Color.myTextSecondary)
+            }
+            .frame(minWidth: 200, maxWidth: 350, minHeight: 150, maxHeight: 250)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.myContainer)
+                    .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 2)
+            )
+            .padding(.horizontal)
         }
-        .padding(.top, 60)
     }
 }
 
-// ✅ Preview
 #Preview {
-    EmptyStateView(message: "등록된 할 일이 없습니다.")
-        .previewLayout(.sizeThatFits)
-        .padding()
+    EmptyStateView()
 }

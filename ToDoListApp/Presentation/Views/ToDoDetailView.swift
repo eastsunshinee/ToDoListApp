@@ -10,9 +10,11 @@ import SwiftUI
 struct ToDoDetailView: View {
     let todo: ToDoItem
     @State private var isCompleted: Bool
+    @ObservedObject var viewModel: ToDoListViewModel
 
-    init(todo: ToDoItem) {
+    init(todo: ToDoItem, viewModel: ToDoListViewModel) {
         self.todo = todo
+        self.viewModel = viewModel
         _isCompleted = State(initialValue: todo.isCompleted)
     }
 
@@ -39,7 +41,11 @@ struct ToDoDetailView: View {
             Spacer()
 
             Button(action: {
-                // 완료 상태 변경 로직 추가 필요
+                let updatedToDo = ToDoItem(
+                    id: todo.id, title: todo.title, details: todo.details,
+                    isCompleted: isCompleted, createdAt: todo.createdAt, dueDate: todo.dueDate
+                )
+                viewModel.updateToDo(updatedToDo) // ✅ ViewModel을 사용하여 업데이트
             }) {
                 Text("변경 사항 저장")
                     .font(.title3)
@@ -50,13 +56,25 @@ struct ToDoDetailView: View {
                     .cornerRadius(8)
             }
             .padding()
-
         }
         .padding()
         .navigationTitle("할 일 상세")
     }
 }
 
+//#Preview {
+//    let mockRepository = MockToDoRepository(mockData: [
+//        ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil)
+//    ])
+//    let mockViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: mockRepository))
+//
+//    return ToDoDetailView(todo: mockRepository.mockData.first!, viewModel: mockViewModel)
+//}
+
 #Preview {
-    ToDoDetailView(todo: ToDoItem(id: UUID(), title: "테스트 제목", details: "테스트 내용", isCompleted: false, createdAt: Date(), dueDate: nil))
+    let mockToDo = ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil)
+    let mockRepository = MockToDoRepository(mockData: [mockToDo])
+    let mockViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: mockRepository))
+
+    ToDoDetailView(todo: mockToDo, viewModel: mockViewModel) // ✅ return 제거
 }

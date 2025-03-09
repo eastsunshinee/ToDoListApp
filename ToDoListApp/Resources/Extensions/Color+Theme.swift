@@ -8,9 +8,12 @@
 import SwiftUI
 
 extension Color {
-    static let primaryColor = Color("PrimaryColor")
-    static let secondaryColor = Color("SecondaryColor")
-    static let backgroundColor = Color("BackgroundColor")
-    static let textColor = Color("TextColor")
-    static let accentColor = Color("AccentColor")
+    static let myBackground = Color("Background")
+    static let myContainer = Color("ContainerBackground")
+    static let myPrimaryBlue = Color("PrimaryBlue")
+    static let mySecondaryBlue = Color("SecondaryBlue")
+    static let myTextPrimary = Color("TextPrimary")
+    static let myTextSecondary = Color("TextSecondary")
+    static let myButtonBackground = Color("ButtonBackground")
+    static let myDestructive = Color("DestructiveRed")
 }

@@ -12,8 +12,6 @@ struct EmptyStateView: View {
 
     var body: some View {
         ZStack {
-//            Color.myBackground.ignoresSafeArea()
-
             VStack(spacing: 10) {
                 Image(systemName: "tray.fill")
                     .resizable()

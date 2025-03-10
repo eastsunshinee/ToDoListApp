@@ -15,7 +15,7 @@ struct AddToDoView: View {
 
     var body: some View {
         ZStack {
-            Color.myBackground.ignoresSafeArea() // ✅ 배경 컬러 적용
+            Color.myBackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 Text("새로운 할 일 추가")
@@ -40,7 +40,6 @@ struct AddToDoView: View {
 
                 Spacer()
 
-                // ✅ 추가 버튼 (스타일 적용)
                 Button(action: {
                     viewModel.addToDo(title: title, details: details.isEmpty ? nil : details)
                     presentationMode.wrappedValue.dismiss()

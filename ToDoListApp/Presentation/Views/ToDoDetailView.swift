@@ -62,19 +62,10 @@ struct ToDoDetailView: View {
     }
 }
 
-//#Preview {
-//    let mockRepository = MockToDoRepository(mockData: [
-//        ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil)
-//    ])
-//    let mockViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: mockRepository))
-//
-//    return ToDoDetailView(todo: mockRepository.mockData.first!, viewModel: mockViewModel)
-//}
-
 #Preview {
     let mockToDo = ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil)
     let mockRepository = MockToDoRepository(mockData: [mockToDo])
     let mockViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: mockRepository))
 
-    ToDoDetailView(todo: mockToDo, viewModel: mockViewModel) // ✅ return 제거
+    ToDoDetailView(todo: mockToDo, viewModel: mockViewModel)
 }

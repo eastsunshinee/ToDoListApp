@@ -50,6 +50,6 @@ struct ToDoRowView: View {
     ToDoRowView(
         todo: ToDoItem(id: UUID(), title: "SwiftUI 학습", details: "Combine & MVVM 연습", isCompleted: false, createdAt: Date(), dueDate: nil),
         toggleCompletion: { _ in },
-        deleteAction: { _ in } // ✅ 삭제 기능 미리보기 적용
+        deleteAction: { _ in }
     )
 }

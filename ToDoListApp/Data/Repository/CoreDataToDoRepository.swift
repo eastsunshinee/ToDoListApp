@@ -31,18 +31,34 @@ final class CoreDataToDoRepository: ToDoRepository {
     
     func saveToDo(_ item: ToDoItem) -> AnyPublisher<Void, any Error> {
         Future { promise in
-            let toDoEntity = ToDoEntity(context: self.coredataManager.context)
-            toDoEntity.id = item.id
-            toDoEntity.title = item.title
-            toDoEntity.details = item.details
-            toDoEntity.isCompleted = item.isCompleted
-            toDoEntity.createdAt = item.createdAt
-            toDoEntity.dueDate = item.dueDate
+            let fetchRequest: NSFetchRequest<ToDoEntity> = ToDoEntity.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", item.id as CVarArg)
 
-            self.coredataManager.saveContext()
-            promise(.success(()))
+            do {
+                let results = try self.coredataManager.context.fetch(fetchRequest)
+                let toDoEntity: ToDoEntity
+
+                if let existingToDo = results.first {
+                    toDoEntity = existingToDo
+                } else {
+                    toDoEntity = ToDoEntity(context: self.coredataManager.context)
+                }
+
+                toDoEntity.id = item.id
+                toDoEntity.title = item.title
+                toDoEntity.details = item.details
+                toDoEntity.isCompleted = item.isCompleted
+                toDoEntity.createdAt = item.createdAt
+                toDoEntity.dueDate = item.dueDate
+
+                self.coredataManager.saveContext()
+                promise(.success(()))
+            } catch {
+                promise(.failure(error))
+            }
         }.eraseToAnyPublisher()
     }
+
 
     func deleteToDo(_ id: UUID) -> AnyPublisher<Void, any Error> {
         Future { promise in

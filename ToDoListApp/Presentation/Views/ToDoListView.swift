@@ -46,16 +46,24 @@ struct ToDoListView: View {
                         ForEach(viewModel.toDos, id: \.id) { todo in
                             ToDoRowView(
                                 todo: todo,
-                                toggleCompletion: viewModel.toggleCompletion,
-                                deleteAction: viewModel.deleteToDo
+                                toggleCompletion: { id in
+                                    withAnimation {
+                                        viewModel.toggleCompletion(for: id)
+                                    }
+                                },
+                                deleteAction: { id in
+                                    withAnimation {
+                                        viewModel.deleteToDo(id: id)
+                                    }
+                                }
                             )
-                            .listRowBackground(Color.clear)
+                            .listRowBackground(Color.myContainer)
                             .listRowSeparator(.hidden)
                         }
                         .onDelete(perform: deleteToDo)
                     }
                     .listStyle(.plain)
-                    .transition(.opacity)
+//                    .transition(.opacity)
                 }
 
                 Spacer()

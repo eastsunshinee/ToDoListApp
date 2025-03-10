@@ -11,7 +11,7 @@ import Combine
 
 /// 주요 기능: 할 일 목록 가져오기, 추가, 삭제, 완료 상태 토글
 final class ToDoListViewModel: ObservableObject {
-    @Published var toDos: [ToDoItem] = [] // ✅ 상태를 즉시 반영
+    @Published var toDos: [ToDoItem] = []
     @Published var showAddToDo: Bool = false
 
     private let useCase: ToDoUseCase
@@ -32,7 +32,7 @@ final class ToDoListViewModel: ObservableObject {
                 }
             }, receiveValue: { [weak self] fetchedToDos in
                 DispatchQueue.main.async {
-                    self?.toDos = fetchedToDos // ✅ 중복 추가 방지 (덮어쓰기)
+                    self?.toDos = fetchedToDos
                 }
             })
             .store(in: &cancellables)
@@ -58,10 +58,10 @@ final class ToDoListViewModel: ObservableObject {
     /// 할 일 삭제
     func deleteToDo(id: UUID) {
         guard let index = toDos.firstIndex(where: { $0.id == id }) else { return }
-
-        withAnimation {
-            toDos.remove(at: index) // ✅ UI에서 즉시 제거
-        }
+        toDos.remove(at: index)
+//        withAnimation {
+//            toDos.remove(at: index)
+//        }
 
         useCase.deleteToDo(id)
             .receive(on: DispatchQueue.main)
@@ -70,7 +70,8 @@ final class ToDoListViewModel: ObservableObject {
                     print("❌ 할 일 삭제 실패: \(error)")
                 }
             }, receiveValue: { [weak self] in
-                self?.fetchToDos() // ✅ 최신 데이터 유지
+                guard let self = self else { return }
+                self.fetchToDos()
             })
             .store(in: &cancellables)
     }
@@ -78,9 +79,12 @@ final class ToDoListViewModel: ObservableObject {
     /// 완료 상태 토글
     func toggleCompletion(for id: UUID) {
         guard let index = toDos.firstIndex(where: { $0.id == id }) else { return }
-
         var updatedToDo = toDos[index]
         updatedToDo.isCompleted.toggle()
+        toDos[index] = updatedToDo
+//        withAnimation {
+//            toDos[index] = updatedToDo
+//        }
 
         useCase.saveToDo(updatedToDo)
             .receive(on: DispatchQueue.main)
@@ -89,9 +93,8 @@ final class ToDoListViewModel: ObservableObject {
                     print("❌ 할 일 상태 변경 실패: \(failure)")
                 }
             }, receiveValue: { [weak self] in
-                DispatchQueue.main.async {
-                    self?.toDos[index] = updatedToDo // ✅ 중복 데이터 추가 없이 배열 갱신
-                }
+                guard let self = self else { return }
+                self.fetchToDos()
             })
             .store(in: &cancellables)
     }

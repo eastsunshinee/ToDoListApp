@@ -16,7 +16,7 @@ final class MockToDoRepository: ToDoRepository {
 
     private var mockData: [ToDoItem]
 
-    init(mockData: [ToDoItem] = []) { // ✅ 초기화할 때 데이터 주입 가능
+    init(mockData: [ToDoItem] = []) {
         self.mockData = mockData
     }
 
@@ -26,12 +26,18 @@ final class MockToDoRepository: ToDoRepository {
             .eraseToAnyPublisher()
     }
 
+
     func saveToDo(_ item: ToDoItem) -> AnyPublisher<Void, any Error> {
-        mockData.append(item)
+        if let index = mockData.firstIndex(where: { $0.id == item.id }) {
+            mockData[index] = item
+        } else {
+            mockData.append(item)
+        }
         return Just(())
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
+
 
     func deleteToDo(_ id: UUID) -> AnyPublisher<Void, any Error> {
         mockData.removeAll { $0.id == id }

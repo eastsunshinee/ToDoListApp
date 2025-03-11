@@ -8,7 +8,7 @@
 import CoreData
 
 extension CoreDataManager {
-
+    
     /// To-Do 항목을 저장
     /// - Parameters:
     ///   - title: 할 일 제목
@@ -31,12 +31,14 @@ extension CoreDataManager {
     func fetchToDos() -> [ToDoItem] {
         let request = NSFetchRequest<ToDoEntity>(entityName: "ToDoEntity")
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-
+        
         do {
             let result = try context.fetch(request)
             return result.map { $0.toDomainModel() }
         } catch {
+#if DEBUG
             print("Failed to fetch ToDos: \(error.localizedDescription)")
+#endif
             return[]
         }
     }
@@ -46,7 +48,7 @@ extension CoreDataManager {
     func deleteToDo(_ id: UUID) {
         let request = NSFetchRequest<ToDoEntity>(entityName: "ToDoEntity")
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-
+        
         do {
             let result = try context.fetch(request)
             if let todo = result.first {
@@ -54,7 +56,9 @@ extension CoreDataManager {
                 saveContext()
             }
         } catch {
+#if DEBUG
             print("Failed to delete ToDo: \(error.localizedDescription)")
+#endif
         }
     }
 }

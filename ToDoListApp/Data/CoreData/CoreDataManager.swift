@@ -25,7 +25,9 @@ final class CoreDataManager {
         do {
             try context.save()
         } catch {
+#if DEBUG
             print("❌ CoreData 저장 실패: \(error.localizedDescription)")
+#endif
         }
     }
 }

@@ -11,70 +11,60 @@ struct ToDoListView: View {
     @ObservedObject var viewModel: ToDoListViewModel
 
     var body: some View {
-        ZStack {
-            Color.myBackground.ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color.myBackground.ignoresSafeArea()
 
-            VStack {
-                HStack {
-                    Text("나의 할 일")
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.myTextPrimary)
-                    Spacer()
-                    Button(action: {
-                        viewModel.showAddToDo = true
-                    }) {
-                        Image(systemName: "plus")
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .padding(12)
-                            .background(Color.myDestructive)
-                            .foregroundColor(.white)
-                            .clipShape(Circle())
-                            .shadow(radius: 5)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-
-                if viewModel.toDos.isEmpty {
-                    EmptyStateView()
-                        .transition(.opacity)
-                        .padding(.top, 50)
-                } else {
-                    List {
-                        ForEach(viewModel.toDos, id: \.id) { todo in
-                            ToDoRowView(
-                                todo: todo,
-                                toggleCompletion: { id in
-                                    withAnimation {
-                                        viewModel.toggleCompletion(for: id)
-                                    }
-                                },
-                                deleteAction: { id in
-                                    withAnimation {
-                                        viewModel.deleteToDo(id: id)
-                                    }
-                                }
-                            )
-                            .listRowBackground(Color.myContainer)
-                            .listRowSeparator(.hidden)
+                VStack {
+                    // MARK: - 헤더 영역
+                    HStack {
+                        Text("나의 할 일")
+                            .font(.largeTitle)
+                            .bold()
+                            .foregroundColor(.myTextPrimary)
+                        Spacer()
+                        Button(action: {
+                            viewModel.showAddToDo = true
+                        }) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .frame(width: 22, height: 22)
+                                .padding(12)
+                                .background(Color.myDestructive)
+                                .foregroundColor(.white)
+                                .clipShape(Circle())
+                                .shadow(radius: 5)
                         }
-                        .onDelete(perform: deleteToDo)
                     }
-                    .listStyle(.plain)
-//                    .transition(.opacity)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    // MARK: - 할 일 목록
+                    if viewModel.toDos.isEmpty {
+                        EmptyStateView()
+                            .transition(.opacity)
+                            .padding(.top, 50)
+                    } else {
+                        List {
+                            ForEach(viewModel.toDos, id: \.id) { todo in
+                                NavigationLink(destination: ToDoDetailView(todo: todo, viewModel: viewModel)) {
+                                    ToDoRowView(todo: todo)
+                                }
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                            }
+                            .onDelete(perform: deleteToDo)
+                        }
+                        .listStyle(.plain)
+                    }
+                    Spacer()
                 }
-
-                Spacer()
             }
         }
         .sheet(isPresented: $viewModel.showAddToDo) {
             AddToDoView(viewModel: viewModel)
         }
     }
-
-    /// 리스트에서 삭제하는 메서드
+    // MARK: - Methods
     private func deleteToDo(at offsets: IndexSet) {
         for index in offsets {
             let todo = viewModel.toDos[index]
@@ -84,7 +74,6 @@ struct ToDoListView: View {
         }
     }
 }
-
 
 #Preview {
     let mockToDoItems = [
@@ -96,4 +85,3 @@ struct ToDoListView: View {
 
     return ToDoListView(viewModel: viewModel)
 }
-

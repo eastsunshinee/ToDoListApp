@@ -8,57 +8,92 @@
 import SwiftUI
 
 struct ToDoDetailView: View {
-    let todo: ToDoItem
-    @State private var isCompleted: Bool
     @ObservedObject var viewModel: ToDoListViewModel
+    @State private var title: String
+    @State private var details: String
+    @State private var isCompleted: Bool
+    @Environment(\.presentationMode) var presentationMode
+
+    let todo: ToDoItem
 
     init(todo: ToDoItem, viewModel: ToDoListViewModel) {
         self.todo = todo
         self.viewModel = viewModel
+        _title = State(initialValue: todo.title)
+        _details = State(initialValue: todo.details ?? "")
         _isCompleted = State(initialValue: todo.isCompleted)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text(todo.title)
-                .font(.title)
-                .bold()
+        ZStack {
+            Color.myBackground.ignoresSafeArea()
 
-            if let details = todo.details, !details.isEmpty {
-                Text(details)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("세부 내용이 없습니다.")
-                    .foregroundColor(.gray)
+            VStack(spacing: 20) {
+                Text("할 일 상세")
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(.myTextPrimary)
+
+                VStack(spacing: 16) {
+                    TextField("제목", text: $title)
+                        .padding()
+                        .background(Color.myContainer)
+                        .cornerRadius(10)
+                        .foregroundColor(.myTextPrimary)
+
+                    TextField("세부 사항", text: $details)
+                        .padding()
+                        .background(Color.myContainer)
+                        .cornerRadius(10)
+                        .foregroundColor(.myTextSecondary)
+
+                    Toggle("완료 상태", isOn: $isCompleted)
+                        .toggleStyle(SwitchToggleStyle(tint: .myPrimaryBlue))
+                        .padding()
+                        .background(Color.myContainer)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal, 20)
+
+                Spacer()
+
+                HStack(spacing: 12) {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("취소")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+
+                    Button(action: {
+                        let updatedToDo = ToDoItem(
+                            id: todo.id, title: title, details: details.isEmpty ? nil : details,
+                            isCompleted: isCompleted, createdAt: todo.createdAt, dueDate: todo.dueDate
+                        )
+                        withAnimation {
+                            viewModel.updateToDo(updatedToDo)
+                        }
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("저장")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.myDestructive)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 30)
             }
-
-            HStack {
-                Text("완료 상태:")
-                Toggle("", isOn: $isCompleted)
-            }
-            .padding()
-
-            Spacer()
-
-            Button(action: {
-                let updatedToDo = ToDoItem(
-                    id: todo.id, title: todo.title, details: todo.details,
-                    isCompleted: isCompleted, createdAt: todo.createdAt, dueDate: todo.dueDate
-                )
-                viewModel.updateToDo(updatedToDo) // ✅ ViewModel을 사용하여 업데이트
-            }) {
-                Text("변경 사항 저장")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isCompleted ? Color.green : Color.blue)
-                    .cornerRadius(8)
-            }
-            .padding()
+            .padding(.top, 40)
         }
-        .padding()
-        .navigationTitle("할 일 상세")
     }
 }
 
@@ -67,5 +102,5 @@ struct ToDoDetailView: View {
     let mockRepository = MockToDoRepository(mockData: [mockToDo])
     let mockViewModel = ToDoListViewModel(useCase: ToDoUseCaseImpl(repository: mockRepository))
 
-    ToDoDetailView(todo: mockToDo, viewModel: mockViewModel)
+    return ToDoDetailView(todo: mockToDo, viewModel: mockViewModel)
 }
